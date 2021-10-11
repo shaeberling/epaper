@@ -18,10 +18,22 @@
 #include "driver/gpio.h"
 #include "demo.h"
 
+// Note: Change this to the pins you are using.
+#define BUSY_Pin 16  // READ   (BUSY)
+#define RES_Pin  17  // WRITE  (RESET/RST)
+#define DC_Pin   18  // WRITE  (DATA/COMMAND)
+#define CS_Pin   23  // WRITE  (CHIP SELECT)
+#define SCK_Pin  22  // WRITE  (CLOCK)
+#define SDI_Pin  21  // WRITE  (MOSI)
+
+// See "Command Table" in the provided specificaton PDF.
+#define CMD_DRIVER_OUTPUT_CTRL       0x01
 #define CMD_GATE_DRIVING_VOLT_CTRL   0x03
 #define CMD_SOURCE_DRIVING_VOLT_CTRL 0x04
 #define CMD_RED_DISPLAY_CTRL         0x05
 #define CMD_DEEP_SLEEP               0x10
+#define CMD_DATA_ENTRY_MODE          0x11
+#define CMD_SW_RESET                 0x12
 #define CMD_MASTER_ACTIVATION        0x20
 #define CMD_DISP_UPDATE_CTRL         0x22
 #define CMD_WRITE_RAM_1              0x24
@@ -31,16 +43,11 @@
 #define CMD_SET_DUMMY_LINE_PERIOD    0x3A
 #define CMD_SET_GATE_LINE_WIDTH      0x3B
 #define CMD_BORDER_CONTROL           0x3C
+#define CMD_SET_RAM_X_ADDR_POS       0x44
+#define CMD_SET_RAM_Y_ADDR_POS       0x45
 #define CMD_SET_RAM_X_ADDR           0x4E
 #define CMD_SET_RAM_Y_ADDR           0x4F
 #define CMD_RED_DISPLAY_CONTROL      0x75
-
-#define BUSY_Pin 16  // READ   (BUSY)
-#define RES_Pin  17  // WRITE  (RESET/RST)
-#define DC_Pin   18  // WRITE  (DATA/COMMAND)
-#define CS_Pin   23  // WRITE  (CHIP SELECT)
-#define SCK_Pin  22  // WRITE  (CLOCK)
-#define SDI_Pin  21  // WRITE  (MOSI)
 
 #define PIN_LOW  false
 #define PIN_HIGH true
@@ -233,28 +240,28 @@ void LUT_Written_by_MCU(int mode) {
 
 void Epaper_Init() {
   set_pin(RES_Pin, PIN_LOW);  // Module reset
-  delay_millis(100);     //At least 10ms
+  delay_millis(100);          // At least 10ms
   set_pin(RES_Pin, PIN_HIGH);
   delay_millis(100);
 
   Epaper_READBUSY();
-  Epaper_Write_Command(0x12); // soft reset
+  Epaper_Write_Command(CMD_SW_RESET);
   Epaper_READBUSY();
 
-  Epaper_Write_Command(0x01); //Driver output control
+  Epaper_Write_Command(CMD_DRIVER_OUTPUT_CTRL);
   Epaper_Write_Data(0xf9);
   Epaper_Write_Data(0x01);
 
-  Epaper_Write_Command(0x11); //data entry mode
+  Epaper_Write_Command(CMD_DATA_ENTRY_MODE);
   Epaper_Write_Data(0x03);
 
-  Epaper_Write_Command(0x44); //set Ram-X address start/end position
-  Epaper_Write_Data(0x00);
-  Epaper_Write_Data(0x0F);    //0x0F-->(15+1)*8=128
+  Epaper_Write_Command(CMD_SET_RAM_X_ADDR_POS); //set Ram-X address start/end position
+  Epaper_Write_Data(0x00);  // Start address
+  Epaper_Write_Data(0x0F);  // End address. 0x0F-->(15+1)*8=128
 
-  Epaper_Write_Command(0x45); //set Ram-Y address start/end position
-  Epaper_Write_Data(0x00);   //0xD3-->(211+1)=212
-  Epaper_Write_Data(0xF9);
+  Epaper_Write_Command(CMD_SET_RAM_Y_ADDR_POS); //set Ram-Y address start/end position
+  Epaper_Write_Data(0x00);   // Start Address
+  Epaper_Write_Data(0xF9);   // End address
 }
 
 void init_gpio() {
