@@ -16,13 +16,13 @@ This has been tested on an ESP32 connected to a Good Display GDEM213U23 epaper d
 To change the image, you need to provide data for black and red separately:
 
  - Create a PNG that is exactly 250x122 pixels for your BLACK data.
-  - Rotate it 90 degree clockwise and save.
+   - Rotate it 90 degree clockwise and save.
  - Create another PNG with the same dimensions for your RED data
-  - Invert the image so that everything white is what you want to be red later.
-  - Rotate it 90 degrees clockwise and save.
+   - Invert the image so that everything white is what you want to be red later.
+   - Rotate it 90 degrees clockwise and save.
  - Go to https://javl.github.io/image2cpp/ and for each image:
-  - Load it
-  - Select flip "vertically".
-  - Select "bytes only" for the output format.
-  - Hit "generate code"
-  - Copy the bytes to the `demo.h` file for the appropriate image (either bw or red).
+   - Load it
+   - Select flip "vertically".
+   - Select "bytes only" for the output format.
+   - Hit "generate code"
+   - Copy the bytes to the `demo.h` file for the appropriate image (either bw or red).
